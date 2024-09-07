@@ -75,6 +75,7 @@ import {auth , db , storage , onAuthStateChanged ,
                 <p class="text-gray-600 mb-2">Delivery Location: ${deliveryLocation}</p>
                 <div class="flex justify-between items-center">
                   <button
+                  onclick = "likeProduct(this)"
                     class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
                   >
                     ${
@@ -87,7 +88,7 @@ import {auth , db , storage , onAuthStateChanged ,
       
                   <button
                   id = ${doc.id}
-                  onclick = "deleteEvent(this)"
+                  onclick = "deleteProduct(this)"
                   class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
                 >
                  Delete
@@ -96,9 +97,12 @@ import {auth , db , storage , onAuthStateChanged ,
               </div>
             </div>`;
       
+            window.likeProduct = likeProduct;
             window.deleteProduct = deleteProduct;
             products_cards_container.innerHTML += card;
             console.log(product);
+
+            
           });
         } catch (err) {
           alert(err);
@@ -106,9 +110,39 @@ import {auth , db , storage , onAuthStateChanged ,
       }
       
       async function deleteProduct(e) {
-        console.log(e);
+        console.log('delete=>',e);
       
         const docRef = doc(db, "products", e.id);
         await deleteDoc(docRef);
         getMyproducts(auth.currentUser.uid);
       }
+
+      
+async function likeProduct(e) {
+  console.log("like=>",e);
+  if (auth.currentUser) {
+    e.disabled = true;
+    const docRef = doc(db, "products", e.id);
+    if (e.innerText == "Liked..") {
+     await updateDoc(docRef, {
+        likes: arrayRemove(auth.currentUser.uid),
+      })
+        .then(() => {
+          e.innerText = "Like";
+          e.disabled = false;
+        })
+        .catch((err) => console.log(err));
+    } else {
+     await updateDoc(docRef, {
+        likes: arrayUnion(auth.currentUser.uid),
+      })
+        .then(() => {
+          e.innerText = "Liked..";
+          e.disabled = false;
+        })
+        .catch((err) => console.log(err));
+    }
+  } else {
+    window.location.href = "../Auth/Login/index.html";
+  }
+}

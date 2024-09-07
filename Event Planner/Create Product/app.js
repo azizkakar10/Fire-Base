@@ -60,6 +60,7 @@ event_form.addEventListener("submit", (e) => {
     createdBy: auth.currentUser.uid,
     createdByEmail: auth.currentUser.email,
     Ordered: [],
+    likes: [],
   };
   const imgRef = ref(storage, eventInfo.banner.name);
   uploadBytes(imgRef, eventInfo.banner).then(() => {
